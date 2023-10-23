@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  app:
+    build: ./docker
+    ports:
+      - "8080:80"
+    volumes:
+      # Mount source-code for development
+      - ./:/var/www
+    depends_on:
+      - phpmyadmin
+  db:
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql-config.cnf:/etc/mysql/conf.d/config.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: 'db'
+      PMA_PORT: '3306'
+      MYSQL_ROOT_PASSWORD: 'root' # Use the same root password as in the MySQL container
+    ports:
+      - '5050:80'
+    depends_on:
+      - db
+volumes:
+  mysql-data:
